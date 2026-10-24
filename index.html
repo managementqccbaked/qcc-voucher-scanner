@@ -111,13 +111,14 @@
             } catch (error) {}
 
             result.textContent = "Voucher code scanned successfully:";
-            result.textContent += window.opener
-            ? " | Opener detected"
-            : " | Opener missing";
             codeDisplay.textContent = scannedCode;
-            result.textContent += window.opener
-            ? " | Connection available"
-            : " | No connection to voucher app";
+
+            if (window.opener && !window.opener.closed) {
+              window.opener.location.href =
+                "https://script.google.com/macros/s/AKfycbw6zG_1HYbdF8BU8ZyAWWCVTTLVzVbGJ9OCmOWViYJd6Qg0gV38iheUzjM3YbkOUq7lXQ/exec?scannedCode="
+                + encodeURIComponent(scannedCode);
+            }
+            
             copyButton.disabled = false;
           },
           function() {}
