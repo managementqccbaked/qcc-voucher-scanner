@@ -132,7 +132,7 @@
       try {
         await navigator.clipboard.writeText(scannedCode);
         document.getElementById("result").textContent =
-          "Code copied! Return to the voucher app and paste it.";
+          scannedCode + " copied! Return to the voucher app and paste it.";
       } catch (error) {
         document.getElementById("result").textContent =
           "Automatic copy failed. Please select and copy the code manually.";
