@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QCC Baked QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff5fb;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h2 { color: #8e44ad; text-align: center; }
+    p { text-align: center; }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #8e44ad;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    #reader {
+      width: 100%;
+      margin-top: 16px;
+      background: white;
+    }
+    #result {
+      margin-top: 18px;
+      padding: 14px;
+      background: white;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <h2>QCC Baked</h2>
+  <p>QR Code Scanner Test</p>
+
+  <button id="startButton" onclick="startScanner()">
+    Start Camera Scanner
+  </button>
+
+  <div id="reader"></div>
+
+  <div id="result" role="status">
+    Tap Start Camera Scanner to begin.
+  </div>
+
+  <button onclick="stopScanner()">Stop Scanner</button>
+
+  <script>
+    let scanner = null;
+    let isRunning = false;
+
+    async function startScanner() {
+      const result = document.getElementById('result');
+
+      if (isRunning) return;
+
+      result.textContent = 'Opening camera...';
+
+      try {
+        if (!scanner) {
+          scanner = new Html5Qrcode('reader');
+        }
+
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          async function(decodedText) {
+            result.textContent = 'QR code read: ' + decodedText;
+
+            if (isRunning) {
+              isRunning = false;
+              await scanner.stop();
+            }
+          },
+          function() {}
+        );
+
+        isRunning = true;
+        result.textContent = 'Camera is running. Point it at a QR code.';
+      } catch (error) {
+        result.textContent =
+          'Could not start camera. Open this page over HTTPS and allow camera access. Details: ' +
+          error;
+      }
+    }
+
+    async function stopScanner() {
+      if (scanner && isRunning) {
+        try {
+          await scanner.stop();
+        } catch (error) {}
+      }
+
+      isRunning = false;
+      document.getElementById('result').textContent = 'Scanner stopped.';
+    }
+  </script>
+</body>
+</html>
