@@ -120,6 +120,9 @@
 
             result.textContent = "Voucher code scanned successfully:";
             codeDisplay.textContent = scannedCode;
+            result.textContent += window.opener
+            ? " | Connection available"
+            : " | No connection to voucher app";
             copyButton.disabled = false;
           },
           function() {}
