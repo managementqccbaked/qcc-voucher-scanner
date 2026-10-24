@@ -103,6 +103,15 @@
             if (!isRunning) return;
 
             scannedCode = decodedText;
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(
+              {
+                type: "QCC_VOUCHER_SCANNED",
+                code: decodedText
+              },
+              "https://script.google.com"
+              );
+            }
             isRunning = false;
 
             try {
