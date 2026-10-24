@@ -119,6 +119,9 @@
             } catch (error) {}
 
             result.textContent = "Voucher code scanned successfully:";
+            result.textContent += window.opener
+            ? " | Opener detected"
+            : " | Opener missing";
             codeDisplay.textContent = scannedCode;
             result.textContent += window.opener
             ? " | Connection available"
