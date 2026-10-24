@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QCC Baked QR Scanner</title>
+  <title>QCC Baked Voucher Scanner</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body {
@@ -27,23 +27,27 @@
       font-size: 16px;
       font-weight: bold;
     }
-    #reader {
-      width: 100%;
-      margin-top: 16px;
-      background: white;
-    }
+    button:disabled { background: #aaa; }
+    #reader { width: 100%; margin-top: 16px; }
     #result {
       margin-top: 18px;
       padding: 14px;
       background: white;
       border-radius: 10px;
       overflow-wrap: anywhere;
+      text-align: center;
+    }
+    #code {
+      font-size: 24px;
+      font-weight: bold;
+      color: #8e44ad;
+      overflow-wrap: anywhere;
     }
   </style>
 </head>
 <body>
   <h2>QCC Baked</h2>
-  <p>QR Code Scanner Test</p>
+  <p>Voucher QR Scanner</p>
 
   <button id="startButton" onclick="startScanner()">
     Start Camera Scanner
@@ -52,59 +56,86 @@
   <div id="reader"></div>
 
   <div id="result" role="status">
-    Tap Start Camera Scanner to begin.
+    Tap Start Camera Scanner to scan a voucher.
   </div>
 
-  <button onclick="stopScanner()">Stop Scanner</button>
+  <div id="code"></div>
+
+  <button id="copyButton" onclick="copyCode()" disabled>
+    Copy Voucher Code
+  </button>
+
+  <button onclick="startScanner()">
+    Scan Again
+  </button>
+
+  <p>After copying, return to the voucher app and paste the code.</p>
 
   <script>
     let scanner = null;
     let isRunning = false;
+    let scannedCode = "";
 
     async function startScanner() {
-      const result = document.getElementById('result');
+      const result = document.getElementById("result");
+      const codeDisplay = document.getElementById("code");
+      const copyButton = document.getElementById("copyButton");
 
-      if (isRunning) return;
+      if (isRunning) {
+        result.textContent = "Camera is already running.";
+        return;
+      }
 
-      result.textContent = 'Opening camera...';
+      scannedCode = "";
+      codeDisplay.textContent = "";
+      copyButton.disabled = true;
+      result.textContent = "Opening camera...";
 
       try {
         if (!scanner) {
-          scanner = new Html5Qrcode('reader');
+          scanner = new Html5Qrcode("reader");
         }
 
         await scanner.start(
-          { facingMode: 'environment' },
+          { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           async function(decodedText) {
-            result.textContent = 'QR code read: ' + decodedText;
+            if (!isRunning) return;
 
-            if (isRunning) {
-              isRunning = false;
+            scannedCode = decodedText;
+            isRunning = false;
+
+            try {
               await scanner.stop();
-            }
+            } catch (error) {}
+
+            result.textContent = "Voucher code scanned successfully:";
+            codeDisplay.textContent = scannedCode;
+            copyButton.disabled = false;
           },
           function() {}
         );
 
         isRunning = true;
-        result.textContent = 'Camera is running. Point it at a QR code.';
+        result.textContent = "Camera ready. Point it at the voucher QR code.";
       } catch (error) {
+        isRunning = false;
         result.textContent =
-          'Could not start camera. Open this page over HTTPS and allow camera access. Details: ' +
-          error;
+          "Could not open camera. Please allow camera access and try again.";
       }
     }
 
-    async function stopScanner() {
-      if (scanner && isRunning) {
-        try {
-          await scanner.stop();
-        } catch (error) {}
-      }
+    async function copyCode() {
+      if (!scannedCode) return;
 
-      isRunning = false;
-      document.getElementById('result').textContent = 'Scanner stopped.';
+      try {
+        await navigator.clipboard.writeText(scannedCode);
+        document.getElementById("result").textContent =
+          "Code copied! Return to the voucher app and paste it.";
+      } catch (error) {
+        document.getElementById("result").textContent =
+          "Automatic copy failed. Please select and copy the code manually.";
+      }
     }
   </script>
 </body>
