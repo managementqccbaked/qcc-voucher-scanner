@@ -112,6 +112,15 @@
 
             result.textContent = "QR code scanned successfully!";
             codeDisplay.textContent = scannedCode;
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(
+                {
+                  type: "QCC_VOUCHER_SCANNED",
+                  code: scannedCode
+                },
+                "https://script.google.com"
+              );
+            }
             copyButton.disabled = false;
           },
           function() {}
