@@ -110,8 +110,8 @@
               await scanner.stop();
             } catch (error) {}
 
-            result.textContent = "QR code scanned successfully!";
-            codeDisplay.textContent = scannedCode;
+            result.textContent = "QR code scanned successfully!\n" + scannedCode;
+            //codeDisplay.textContent = scannedCode;
             copyButton.disabled = false;
           },
           function() {}
