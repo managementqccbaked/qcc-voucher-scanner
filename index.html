@@ -104,13 +104,9 @@
 
             scannedCode = decodedText;
             if (window.opener && !window.opener.closed) {
-              window.opener.postMessage(
-              {
-                type: "QCC_VOUCHER_SCANNED",
-                code: decodedText
-              },
-              "https://script.google.com"
-              );
+              window.opener.location.href =
+                "https://script.google.com/macros/s/AKfycbw6zG_1HYbdF8BU8ZyAWWCVTTLVzVbGJ9OCmOWViYJd6Qg0gV38iheUzjM3YbkOUq7lXQ/exec?scannedCode="
+                + encodeURIComponent(decodedText);
             }
             isRunning = false;
 
